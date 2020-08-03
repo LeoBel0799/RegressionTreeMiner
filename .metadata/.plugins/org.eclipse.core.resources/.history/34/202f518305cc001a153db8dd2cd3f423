@@ -1,0 +1,98 @@
+package tree;
+import java.io.Serializable;
+
+import data.Data;
+
+/**
+ * Classe astratta che modella l'astrazione dell'entità nodo dell'albero di
+ * regressione.
+ * 
+ * 
+ */
+
+@SuppressWarnings("serial")
+public abstract class Node implements Serializable {
+	
+	double sum= 0.0;
+	double mean = 0.0;
+	public static int idNodeCount=0; // contatore dei nodi generati nell'albero
+	private int idNode; // identificativo numerico del nodo
+	protected int beginExampleIndex; // indice nell'array del training set del primo esempio coperto dal nodo corrente
+	protected int endExampleIndex; // indice nell'array del training set dell'ultimo //esempio coperto dal nodo corrente. beginExampleIndex e endExampleIndex individuano //un sotto-insieme di training.
+	private double variance; // valore della varianza calcolata, rispetto all'attributo di classe, nel sotto-insieme di training del nodo
+	
+	/**
+	 * Avvalora gli attributi primitivi di classe , inclusa la varianza che
+	 * viene calcolata rispetto all'attributo di classe nel sotto-insieme di
+	 * training coperto dal nodo.
+	 * 
+	 * @param trainingSet
+	 *            Oggetto di classe Data contenente il training set completo.
+	 * @param beginExampleIndex
+	 *            Indice iniziale del sotto-insieme di training coperto dal nodo
+	 *            corrente.
+	 * @param endExampleIndex
+	 *            Indice finale del sotto-insieme di training coperto dal nodo
+	 *            corrente.
+	 */
+	
+	public Node(Data trainingSet, int beginExampleIndex, int endExampleIndex){
+		
+		this.beginExampleIndex = beginExampleIndex;
+		this.endExampleIndex = endExampleIndex;
+		this.idNode = idNodeCount++;
+		
+		for (int i=beginExampleIndex; i<=endExampleIndex; i++) {
+			sum += trainingSet.getClassValue(i);
+		}
+		
+		mean = sum/ (this.endExampleIndex-beginExampleIndex+1);
+		
+		for (int i=beginExampleIndex; i<=endExampleIndex; i++) {
+			variance += Math.pow((trainingSet.getClassValue(i) - mean), 2);
+		}
+	}
+	
+	
+	
+	public int getIdNode(){			/*Input: //
+									Output: identificativo numerico del nodo
+									Comportamento: Restituisce il valore del membro idNode */
+		return idNode;
+	}
+	
+	
+	
+	public int getBeginExampleIndex(){		/*Output: indice del primo (ultimo) esempio del sotto-insieme rispetto al training set complessivo
+											Comportamento: Restituisce il valore del membro beginExampleIndex (endExampleIndex) */
+		return beginExampleIndex;
+	}
+	
+	
+	
+	public int getEndExampleIndex(){
+		return endExampleIndex;
+	}
+	
+	
+	public double getVariance(){			/*Input: //
+											Output: valore della varianza dell’attributo da predire rispetto al nodo corrente
+											Comportamento: Restituisce il valore del membro variance */
+		return variance;
+	}	
+	
+	
+	abstract int getNumberOfChildren();		/*Input: //
+											Output: valore del numero di nodi sottostanti
+											Comportamento:E' un metodo astratto la cui implementazione riguarda i nodi di tipo test
+											(split node) dai quali si possono generare figli, uno per ogni split prodotto.
+											 Restituisce il numero di tali nodi figli.*/
+
+	
+	public String toString() {	/*Input: //
+								Comportamento: Concatena in un oggetto String i valori di beginExampleIndex,endExampleIndex, variance e restituisce la stringa finale. */
+		String s;
+		s= " Nodo: [Examples : " + getBeginExampleIndex() + " " + "-" + " " + getEndExampleIndex() + " ] " + "variance " + this.variance;
+		return s;
+	}
+}

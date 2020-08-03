@@ -1,0 +1,103 @@
+package tree;
+import java.io.Serializable; 
+import java.util.*;  
+
+
+import data.Attribute;
+import data.Data;
+import data.DiscreteAttribute;
+
+/**
+ * Modella l'entità per un nodo di split relativo ad un attributo indipendente
+ * discreto.
+ *
+ */
+
+@SuppressWarnings("serial")
+public class DiscreteNode extends SplitNode implements Serializable{
+
+
+	/**
+	 * Istanzia un oggetto invocando il costruttore della superclasse SplitNode
+	 * con il parametro discreto DiscreteAttribute.
+	 * 
+	 * @param trainingSet
+	 *            Training set complessivo.
+	 * @param beginExampleIndex
+	 *            Indice iniziale del sotto-insieme di training.
+	 * @param endExampleIndex
+	 *            Indice finale del sotto-insieme di training.
+	 * @param attribute
+	 *            Attributo indipendente sul quale si definiscce lo split.
+	 */
+	public DiscreteNode(Data trainingSet,int beginExampleIndex, int endExampleIndex, DiscreteAttribute attribute) {
+		super(trainingSet, beginExampleIndex, endExampleIndex, attribute);
+	}
+
+	/**
+	 * Istanzia oggetti SpliInfo (definita come inner class in Splitnode) con 
+	 * ciascuno dei valori discreti dell’attributo relativamente al sotto-insieme di training corrente (ossia la porzione 
+	 * di trainingSet compresa tra beginExampelIndex e endExampelIndex), quindi popola mapSplit con tali oggetti
+	 *
+	 * @param trainingSet
+	 *            Training set complessivo.
+	 * @param beginExampleIndex
+	 *            Indice iniziale del sotto-insieme di training.
+	 * @param endExampleIndex
+	 *            Indice finale del sotto-insieme di training.
+	 * @param attribute
+	 *            Attributo indipendente sul quale si definiscce lo split.
+	 */
+
+	void setSplitInfo(Data trainingSet, int beginExampleIndex, int endExampleIndex,   Attribute attribute) {
+
+		Object currentSplitValue = trainingSet.getExplanatoryValue(beginExampleIndex, attribute.getIndex());
+		int beginSplit = beginExampleIndex;
+		int child = 0;
+
+		ArrayList<SplitInfo> mapSplit2= new ArrayList <SplitInfo>(endExampleIndex - beginExampleIndex);
+		for(int i = beginExampleIndex+1; i<=endExampleIndex; i++){
+			if(currentSplitValue.equals( trainingSet.getExplanatoryValue(i, attribute.getIndex()) ) == false ){ // determina quando varia il valore in 'attribute'
+				mapSplit2.add(child,new SplitInfo(currentSplitValue, beginSplit, i-1, child ));
+				currentSplitValue = trainingSet.getExplanatoryValue(i, attribute.getIndex());
+				beginSplit = i;
+				child++;
+			}
+		}
+		mapSplit2.add(child, new SplitInfo(currentSplitValue, beginSplit, endExampleIndex, child));
+		
+		this.mapSplit=mapSplit2;
+	}	
+		
+
+	/**
+	 * Effettua il confronto del valore in input rispetto al valore contenuto nell’attributo splitValue di ciascuno 
+	 * degli oggetti SplitInfo collezionati in mapSplite restituisce l'identificativo dello split 
+	 * (indice della posizione nell’array mapSplit) con cui il test è positivo
+	 * 
+	 * @param value
+	 * 			valore discreto dell'attributo che si vuole testare rispetto a tutti gli split
+	 * @return 
+	 * 			numero del ramo di split
+	 */
+
+	public int testCondition(Object value) {		
+	
+		int i;
+		for (i = 0; i < mapSplit.size(); i++) {
+			if (mapSplit.get(i).splitValue.equals(value))
+				break;
+		}
+		return mapSplit.get(i).numberChild;
+	}
+
+	
+	/**
+	 * Invoca il metodo della superclasse specializzandolo per discreti
+	 */
+	public String toString() {		
+		return "DISCRETE " + super.toString();
+	}
+
+}
+

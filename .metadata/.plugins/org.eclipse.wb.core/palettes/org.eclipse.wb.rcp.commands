@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<commands>
+	<addCategory
+		id="category_1595585840216"
+		name="Custom"
+		description="Container for custom components"
+		visible="true"
+		open="true"/>
+	<addComponent
+		id="custom_1595585840216"
+		name="Text"
+		description="Creates javafx.scene.text.Text component."
+		visible="true"
+		class="javafx.scene.text.Text"
+		category="category_1595585840216"/>
+</commands>
